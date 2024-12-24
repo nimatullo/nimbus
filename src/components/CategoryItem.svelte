@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { formatMoney, formatPercentage } from '../format';
+	import FormattedInputField from './FormattedInputField.svelte';
 	import Range from './Slider.svelte';
 
 	interface CategoryItemProps {
@@ -6,20 +8,20 @@
 		description: string;
 		value: number;
 		percentage: number;
+		income: number;
 		externalLink?: string;
 	}
-
-	const formatValue = (value: number) => {
-		return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
-	};
 
 	let {
 		title,
 		description,
 		value = $bindable(),
 		percentage = $bindable(),
+		income,
 		externalLink
 	}: CategoryItemProps = $props();
+
+	let editMode = $state(false);
 </script>
 
 <div
@@ -35,11 +37,32 @@
 				{title}
 			{/if}
 		</h2>
+
 		<p>{description}</p>
-		<p class={`font-semibold ${value > 0 ? '' : 'opacity-0'}`}>{formatValue(value)} / month</p>
+
+		<div class={`flex gap-2 ${value > 0 ? '' : 'opacity-0'}`}>
+			{#if editMode}
+				<FormattedInputField
+					bind:value
+					formatter={(v) => formatMoney(+v)}
+					parser={(value: string) => value.replace(/[^0-9.]/g, '')}
+					onchange={(e) => {
+						const t = e.target as HTMLInputElement;
+						const v = Number(t.value);
+						percentage = (v / income) * 100;
+					}}
+				/>
+			{:else}
+				<p class="font-semibold">{formatMoney(value)} / month</p>
+			{/if}
+			<button class={`${value == 0 && 'hidden'} text-sm`} onclick={() => (editMode = !editMode)}
+				>{editMode ? '[Save]' : '[Edit]'}</button
+			>
+		</div>
 	</div>
+
 	<div class="flex items-center justify-end">
 		<Range bind:value={percentage} />
-		<p class="ml-2">{percentage}%</p>
+		<p class="ml-2">{formatPercentage(percentage)}</p>
 	</div>
 </div>

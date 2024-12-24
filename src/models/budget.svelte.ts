@@ -1,3 +1,5 @@
+import { formatPercentage } from '../format';
+
 export class BudgetCalculator {
 	income = $state(0);
 	billsPercentage = $state(40);
@@ -12,19 +14,32 @@ export class BudgetCalculator {
 		guiltFreeSpending: (this.income * this.guiltFreeSpendingPercentage) / 100
 	});
 
-	totalPercentage = $derived(
-		this.billsPercentage +
+	totalPercentage = $derived.by(() => {
+		const total =
+			this.billsPercentage +
 			this.savingsPercentage +
 			this.investmentsPercentage +
-			this.guiltFreeSpendingPercentage
-	);
+			this.guiltFreeSpendingPercentage;
+
+		return Math.round(total);
+	});
 
 	hasError = () => {
 		if (this.totalPercentage < 100) {
-			return `Unallocated by ${100 - this.totalPercentage}%`;
+			const fp = formatPercentage(100 - this.totalPercentage);
+			return `Unallocated by ${fp}`;
 		} else if (this.totalPercentage > 100) {
-			return `Overallocated by ${this.totalPercentage - 100}%`;
+			const fp = formatPercentage(this.totalPercentage - 100);
+			return `Overallocated by ${fp}`;
 		}
 		return false;
+	};
+
+	reset = () => {
+		this.income = 0;
+		this.billsPercentage = 40;
+		this.savingsPercentage = 15;
+		this.investmentsPercentage = 10;
+		this.guiltFreeSpendingPercentage = 35;
 	};
 }

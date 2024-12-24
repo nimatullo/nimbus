@@ -1,4 +1,14 @@
 <script lang="ts">
+	interface FormattedInputFieldProps {
+		value: number;
+		label?: string;
+		formatter: (value: string) => string;
+		parser: (value: string) => string;
+		className?: string;
+		onchange?: (e: Event) => void;
+		placeholder?: string;
+	}
+
 	let {
 		value = $bindable(),
 		label,
@@ -6,7 +16,7 @@
 		parser = (value: string) => value,
 		className = '',
 		...rest
-	} = $props();
+	}: FormattedInputFieldProps = $props();
 
 	let displayValue = $state(value ? formatter(String(value)) : '');
 
@@ -27,6 +37,10 @@
 	function handleBlur() {
 		displayValue = formatter(String(value));
 	}
+
+	$effect(() => {
+		handleFocus();
+	});
 </script>
 
 <div class={className}>
