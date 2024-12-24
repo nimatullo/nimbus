@@ -12,11 +12,11 @@
 <BlobBackground />
 <div class="my-5 flex w-dvw flex-col items-center justify-center md:my-0 md:h-dvh">
 	<h2
-		class="text-5xl font-black uppercase text-slate-900/30
+		class="text-3xl font-black text-slate-900/30
 		drop-shadow-md
 	 dark:text-slate-100/30"
 	>
-		Nimbus
+		nimbus
 	</h2>
 	<div
 		class="flex w-[90dvw] flex-col gap-4 rounded-2xl border-2 border-slate-200/80 bg-slate-100/80 p-10 shadow-lg md:w-[80dvw] dark:border-slate-600/80 dark:bg-slate-700/80"
