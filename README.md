@@ -4,4 +4,7 @@
   <sub>get yourself a budget</sub>
 </center>
 
-$${\color{red}-\space made with \textbf{svelte} and \textbf{tailwind}}$$
+$${\color{D0216B}-\space made with \textbf{svelte} and \textbf{tailwind}}$$
+
+
+
