@@ -52,7 +52,7 @@
 						}}
 					/>
 				{:else}
-					<p class="font-semibold">{formatMoney(value)} / month</p>
+					<p class="font-semibold">{formatMoney(value)} / pay period</p>
 				{/if}
 
 				<button class={`${value == 0 && 'hidden'} text-sm`} onclick={() => (editMode = !editMode)}

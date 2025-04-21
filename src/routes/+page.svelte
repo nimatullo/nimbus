@@ -1,12 +1,37 @@
 <script lang="ts">
+	import type { ChartTypeRegistry } from 'chart.js';
 	import BlobBackground from '../components/BlobBackground.svelte';
 	import CategoryItem from '../components/CategoryItem.svelte';
 	import FormattedInputField from '../components/FormattedInputField.svelte';
+	import FutureOutlook from '../components/FutureOutlook.svelte';
+	import Modal from '../components/Modal.svelte';
+	import Select from '../components/Select.svelte';
 	import { formatMoney } from '../format';
 	import { BudgetCalculator } from '../models/budget.svelte';
 
 	const calculator = new BudgetCalculator();
 	const error = $derived(calculator.hasError());
+
+	let showFutureOutlook = $state(false);
+
+	let config = $derived({
+		type: 'line' as keyof ChartTypeRegistry,
+		options: {
+			plugins: {
+				tooltip: {
+					callbacks: {
+						label: (t: any) =>
+							`In ${t.label} year(s), you will have ${formatMoney(t.raw as number)}`
+					}
+				}
+			},
+			scales: {
+				y: { ticks: { callback: (v: any) => formatMoney(v) } },
+				x: { title: { display: true, text: 'Years' } }
+			}
+		},
+		data: calculator.futureOutlook
+	});
 </script>
 
 <BlobBackground />
@@ -21,14 +46,26 @@
 	<div
 		class="flex w-[90dvw] flex-col gap-4 rounded-2xl border-2 border-slate-200/80 bg-slate-100/80 p-10 shadow-lg md:w-[80dvw] dark:border-slate-600/80 dark:bg-slate-700/80"
 	>
-		<FormattedInputField
-			formatter={(v) => formatMoney(+v)}
-			parser={(value: string) => value.replace(/[^0-9.]/g, '')}
-			label="Enter your income"
-			placeholder="Income..."
-			bind:value={calculator.income}
-		/>
+		<div class="flex items-end gap-4">
+			<FormattedInputField
+				formatter={(v) => formatMoney(+v)}
+				parser={(value: string) => value.replace(/[^0-9.]/g, '')}
+				label="Enter your income"
+				placeholder="Income..."
+				bind:value={calculator.income}
+				className="flex-grow w-full"
+			/>
 
+			<Select
+				bind:value={calculator.monthlyPayFrequency}
+				options={[
+					{ label: 'Weekly', value: 4 },
+					{ label: 'Bi-weekly', value: 2 },
+					{ label: 'Monthly', value: 1 }
+				]}
+				label="Pay frequency"
+			/>
+		</div>
 		<div class="divide-y divide-slate-500/80">
 			<CategoryItem
 				title="Bills"
@@ -65,8 +102,32 @@
 			/>
 		</div>
 
+		{#if calculator.income}
+			<div class="flex gap-4">
+				<button
+					class="rounded-lg bg-pink-800 px-4 py-2 text-slate-100 shadow-md transition-all duration-200 hover:bg-pink-700 dark:bg-slate-100/30 dark:text-slate-900 dark:hover:bg-slate-100/50"
+					onclick={() => {
+						showFutureOutlook = true;
+					}}
+				>
+					Show future outlook
+				</button>
+
+				<button
+					class="rounded-lg bg-slate-900/30 px-4 py-2 text-slate-100 shadow-md transition-all duration-200 hover:bg-slate-900/50 dark:bg-slate-100/30 dark:text-slate-900 dark:hover:bg-slate-100/50"
+					onclick={calculator.reset}
+				>
+					Reset
+				</button>
+			</div>
+		{/if}
+
 		<p class={`text-red-500 ${error ? '' : 'opacity-0'}`}>
 			{error}
 		</p>
 	</div>
+
+	<Modal bind:open={showFutureOutlook}>
+		<FutureOutlook {config} />
+	</Modal>
 </div>

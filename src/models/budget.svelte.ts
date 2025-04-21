@@ -1,3 +1,4 @@
+import { averageReturns } from '../config';
 import { formatPercentage } from '../format';
 
 export class BudgetCalculator {
@@ -6,6 +7,8 @@ export class BudgetCalculator {
 	savingsPercentage = $state(15);
 	investmentsPercentage = $state(10);
 	guiltFreeSpendingPercentage = $state(35);
+	monthlyPayFrequency = $state(4);
+	futureTime = $state(10); // in years
 
 	budget = $derived({
 		bills: (this.income * this.billsPercentage) / 100,
@@ -42,4 +45,39 @@ export class BudgetCalculator {
 		this.investmentsPercentage = 10;
 		this.guiltFreeSpendingPercentage = 35;
 	};
+
+	get futureOutlook() {
+		const { investment, savings } = averageReturns;
+		const { savings: perPaySavings, investments: perPayInvestments } = this.budget;
+
+		const yearlySavingsContribution = perPaySavings * this.monthlyPayFrequency * 12;
+		const yearlyInvestmentsContribution = perPayInvestments * this.monthlyPayFrequency * 12;
+
+		const savingsValues: number[] = [];
+		const investmentsValues: number[] = [];
+
+		let compoundSavings = 0;
+		let compoundInvestments = 0;
+
+		for (let year = 1; year <= this.futureTime; year++) {
+			compoundSavings = compoundSavings * (1 + savings) + yearlySavingsContribution;
+			compoundInvestments = compoundInvestments * (1 + investment) + yearlyInvestmentsContribution;
+			savingsValues.push(compoundSavings);
+			investmentsValues.push(compoundInvestments);
+		}
+
+		return {
+			labels: Array.from({ length: this.futureTime }, (_, i) => i + 1),
+			datasets: [
+				{
+					label: 'Savings',
+					data: savingsValues
+				},
+				{
+					label: 'Investments',
+					data: investmentsValues
+				}
+			]
+		};
+	}
 }
