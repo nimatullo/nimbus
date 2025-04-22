@@ -1,4 +1,4 @@
-import { averageReturns } from '../config';
+import { averageReturns, PayFrequency } from '../config';
 import { formatPercentage } from '../format';
 
 export class BudgetCalculator {
@@ -7,7 +7,7 @@ export class BudgetCalculator {
 	savingsPercentage = $state(15);
 	investmentsPercentage = $state(10);
 	guiltFreeSpendingPercentage = $state(35);
-	monthlyPayFrequency = $state(4);
+	annualPaymentFrequency: PayFrequency = $state(PayFrequency.Weekly);
 	futureTime = $state(10); // in years
 
 	budget = $derived({
@@ -47,35 +47,38 @@ export class BudgetCalculator {
 	};
 
 	get futureOutlook() {
+		const calculateAnnualReturns = (
+			monthlyInvestment: number,
+			rate: number,
+			years: number
+		): number[] => {
+			const monthlyRate = rate / 12;
+			const res: number[] = [];
+			let total = 0;
+			for (let m = 1; m <= years * 12; m++) {
+				total = (total + monthlyInvestment) * (1 + monthlyRate);
+				if (m % 12 === 0) res.push(total);
+			}
+			return res;
+		};
+
 		const { investment, savings } = averageReturns;
 		const { savings: perPaySavings, investments: perPayInvestments } = this.budget;
 
-		const yearlySavingsContribution = perPaySavings * this.monthlyPayFrequency * 12;
-		const yearlyInvestmentsContribution = perPayInvestments * this.monthlyPayFrequency * 12;
-
-		const savingsValues: number[] = [];
-		const investmentsValues: number[] = [];
-
-		let compoundSavings = 0;
-		let compoundInvestments = 0;
-
-		for (let year = 1; year <= this.futureTime; year++) {
-			compoundSavings = compoundSavings * (1 + savings) + yearlySavingsContribution;
-			compoundInvestments = compoundInvestments * (1 + investment) + yearlyInvestmentsContribution;
-			savingsValues.push(compoundSavings);
-			investmentsValues.push(compoundInvestments);
-		}
+		const paidPerMonth = this.annualPaymentFrequency / 12;
+		const monthlySavings = perPaySavings * paidPerMonth;
+		const monthlyInvestments = perPayInvestments * paidPerMonth;
 
 		return {
 			labels: Array.from({ length: this.futureTime }, (_, i) => i + 1),
 			datasets: [
 				{
 					label: 'Savings',
-					data: savingsValues
+					data: calculateAnnualReturns(monthlySavings, savings, this.futureTime)
 				},
 				{
 					label: 'Investments',
-					data: investmentsValues
+					data: calculateAnnualReturns(monthlyInvestments, investment, this.futureTime)
 				}
 			]
 		};

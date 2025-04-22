@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { ChartTypeRegistry } from 'chart.js';
 	import BlobBackground from '../components/BlobBackground.svelte';
 	import CategoryItem from '../components/CategoryItem.svelte';
 	import FormattedInputField from '../components/FormattedInputField.svelte';
 	import FutureOutlook from '../components/FutureOutlook.svelte';
 	import Modal from '../components/Modal.svelte';
 	import Select from '../components/Select.svelte';
-	import { formatMoney } from '../format';
+	import { averageReturns, payFrequencyOptions } from '../config';
+	import { formatMoney, formatPercentage } from '../format';
 	import { BudgetCalculator } from '../models/budget.svelte';
 
 	const calculator = new BudgetCalculator();
@@ -15,9 +15,17 @@
 	let showFutureOutlook = $state(false);
 
 	let config = $derived({
-		type: 'line' as keyof ChartTypeRegistry,
+		type: 'line' as 'line',
 		options: {
 			plugins: {
+				subtitle: {
+					display: true,
+					text: `Assuming investment growth of ${formatPercentage(averageReturns.investment * 100)} and HYSA growth of ${formatPercentage(averageReturns.savings * 100)}`,
+					position: 'bottom' as 'bottom',
+					color: '#000',
+					padding: { bottom: 10 },
+					font: { family: 'Libre Baskerville', size: 14 }
+				},
 				tooltip: {
 					callbacks: {
 						label: (t: any) =>
@@ -57,12 +65,8 @@
 			/>
 
 			<Select
-				bind:value={calculator.monthlyPayFrequency}
-				options={[
-					{ label: 'Weekly', value: 4 },
-					{ label: 'Bi-weekly', value: 2 },
-					{ label: 'Monthly', value: 1 }
-				]}
+				bind:value={calculator.annualPaymentFrequency}
+				options={payFrequencyOptions}
 				label="Pay frequency"
 			/>
 		</div>
@@ -106,9 +110,7 @@
 			<div class="flex gap-4">
 				<button
 					class="rounded-lg bg-pink-800 px-4 py-2 text-slate-100 shadow-md transition-all duration-200 hover:bg-pink-700 dark:bg-slate-100/30 dark:text-slate-900 dark:hover:bg-slate-100/50"
-					onclick={() => {
-						showFutureOutlook = true;
-					}}
+					onclick={() => (showFutureOutlook = true)}
 				>
 					Show future outlook
 				</button>
