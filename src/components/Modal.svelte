@@ -33,13 +33,15 @@
 
 {#if open}
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm"
+		class="dark:bg-gray-700/50` fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm"
 		onclick={onBackdropClick}
 		tabindex="-1"
 		aria-modal="true"
 		role="dialog"
 	>
-		<div class="relative w-full max-w-3xl rounded-lg bg-white p-6 shadow-lg">
+		<div
+			class="relative h-auto w-full max-w-[60vw] rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800"
+		>
 			<button
 				class="absolute right-2 top-2 text-gray-400 hover:text-gray-600"
 				onclick={close}

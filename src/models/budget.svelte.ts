@@ -1,4 +1,4 @@
-import { averageReturns, PayFrequency } from '../config';
+import { averageReturns, investmentsColor, PayFrequency, savingsColor } from '../config';
 import { formatPercentage } from '../format';
 
 export class BudgetCalculator {
@@ -74,13 +74,36 @@ export class BudgetCalculator {
 			datasets: [
 				{
 					label: 'Savings',
-					data: calculateAnnualReturns(monthlySavings, savings, this.futureTime)
+					data: calculateAnnualReturns(monthlySavings, savings, this.futureTime),
+					...savingsColor
 				},
 				{
 					label: 'Investments',
-					data: calculateAnnualReturns(monthlyInvestments, investment, this.futureTime)
+					data: calculateAnnualReturns(monthlyInvestments, investment, this.futureTime),
+					...investmentsColor
 				}
 			]
+		};
+	}
+
+	get futureOutlookMetadata() {
+		const { savings: perPaySavings, investments: perPayInvestments } = this.budget;
+		const monthlySavings = perPaySavings * (this.annualPaymentFrequency / 12);
+		const monthlyInvestments = perPayInvestments * (this.annualPaymentFrequency / 12);
+
+		const savingsTotal = this.futureOutlook.datasets[0].data[this.futureTime - 1];
+		const investmentsTotal = this.futureOutlook.datasets[1].data[this.futureTime - 1];
+
+		const savingsEarnings = savingsTotal - monthlySavings * this.futureTime * 12;
+		const investmentsEarnings = investmentsTotal - monthlyInvestments * this.futureTime * 12;
+
+		return {
+			monthlyInvestments,
+			monthlySavings,
+			savingsEarnings,
+			investmentsEarnings,
+			savingsMoney: monthlySavings * this.futureTime * 12,
+			investmentsMoney: monthlyInvestments * this.futureTime * 12
 		};
 	}
 }

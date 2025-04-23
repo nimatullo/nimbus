@@ -5,14 +5,21 @@
 	import FutureOutlook from '../components/FutureOutlook.svelte';
 	import Modal from '../components/Modal.svelte';
 	import Select from '../components/Select.svelte';
+	import SeparatedList from '../components/SeparatedList.svelte';
+	import Switch from '../components/Switch.svelte';
 	import { averageReturns, payFrequencyOptions } from '../config';
 	import { formatMoney, formatPercentage } from '../format';
 	import { BudgetCalculator } from '../models/budget.svelte';
 
 	const calculator = new BudgetCalculator();
 	const error = $derived(calculator.hasError());
+	const metadata = $derived(calculator.futureOutlookMetadata);
 
 	let showFutureOutlook = $state(false);
+	const isDarkMode = $derived(() => {
+		if (typeof window === 'undefined') return false;
+		return window.matchMedia('(prefers-color-scheme: dark)').matches;
+	});
 
 	let config = $derived({
 		type: 'line' as 'line',
@@ -22,7 +29,7 @@
 					display: true,
 					text: `Assuming investment growth of ${formatPercentage(averageReturns.investment * 100)} and HYSA growth of ${formatPercentage(averageReturns.savings * 100)}`,
 					position: 'bottom' as 'bottom',
-					color: '#000',
+					color: isDarkMode() ? '#fff' : '#000',
 					padding: { bottom: 10 },
 					font: { family: 'Libre Baskerville', size: 14 }
 				},
@@ -34,8 +41,10 @@
 				}
 			},
 			scales: {
-				y: { ticks: { callback: (v: any) => formatMoney(v) } },
-				x: { title: { display: true, text: 'Years' } }
+				y: {
+					ticks: { callback: (v: any) => formatMoney(v), color: isDarkMode() ? '#fff' : '#000' }
+				},
+				x: { title: { display: true, text: 'Years', color: isDarkMode() ? '#fff' : '#000' } }
 			}
 		},
 		data: calculator.futureOutlook
@@ -130,6 +139,38 @@
 	</div>
 
 	<Modal bind:open={showFutureOutlook}>
-		<FutureOutlook {config} />
+		<Switch
+			bind:selected={calculator.futureTime}
+			onChange={(value) => {
+				calculator.futureTime = value as number;
+			}}
+			options={[
+				{ label: '5 years', value: 5 },
+				{ label: '10 years', value: 10 },
+				{ label: '20 years', value: 20 },
+				{ label: '40 years', value: 40 }
+			]}
+		/>
+		<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+			<div class="col-span-1 md:col-span-2">
+				<FutureOutlook {config} />
+			</div>
+			<SeparatedList
+				items={[
+					{ label: 'Monthly savings', value: formatMoney(metadata.monthlySavings) },
+					{ label: 'Monthly investments', value: formatMoney(metadata.monthlyInvestments) },
+					{
+						label: 'Amount you put into your savings account',
+						value: formatMoney(metadata.savingsMoney)
+					},
+					{
+						label: 'Amount you put into your investments account',
+						value: formatMoney(metadata.investmentsMoney)
+					},
+					{ label: 'Free money from savings', value: formatMoney(metadata.savingsEarnings) },
+					{ label: 'Free money from investments', value: formatMoney(metadata.investmentsEarnings) }
+				]}
+			/>
+		</div>
 	</Modal>
 </div>
