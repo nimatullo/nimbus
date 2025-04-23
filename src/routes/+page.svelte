@@ -1,6 +1,7 @@
 <script lang="ts">
 	import BlobBackground from '../components/BlobBackground.svelte';
 	import CategoryItem from '../components/CategoryItem.svelte';
+	import FancyButton from '../components/FancyButton.svelte';
 	import FormattedInputField from '../components/FormattedInputField.svelte';
 	import FutureOutlook from '../components/FutureOutlook.svelte';
 	import Modal from '../components/Modal.svelte';
@@ -24,6 +25,7 @@
 	let config = $derived({
 		type: 'line' as 'line',
 		options: {
+			maintainAspectRatio: false,
 			plugins: {
 				subtitle: {
 					display: true,
@@ -40,11 +42,17 @@
 					}
 				}
 			},
+			interaction: {
+				mode: 'index' as 'index',
+				intersect: false
+			},
 			scales: {
 				y: {
 					ticks: { callback: (v: any) => formatMoney(v), color: isDarkMode() ? '#fff' : '#000' }
 				},
-				x: { title: { display: true, text: 'Years', color: isDarkMode() ? '#fff' : '#000' } }
+				x: {
+					title: { display: true, text: 'Years', color: isDarkMode() ? '#fff' : '#000' }
+				}
 			}
 		},
 		data: calculator.futureOutlook
@@ -116,16 +124,12 @@
 		</div>
 
 		{#if calculator.income}
-			<div class="flex gap-4">
-				<button
-					class="rounded-lg bg-pink-800 px-4 py-2 text-slate-100 shadow-md transition-all duration-200 hover:bg-pink-700 dark:bg-slate-100/30 dark:text-slate-900 dark:hover:bg-slate-100/50"
-					onclick={() => (showFutureOutlook = true)}
-				>
-					Show future outlook
-				</button>
+			<div class="flex flex-wrap gap-4">
+				<FancyButton label="Show future outlook" onClick={() => (showFutureOutlook = true)} />
 
 				<button
-					class="rounded-lg bg-slate-900/30 px-4 py-2 text-slate-100 shadow-md transition-all duration-200 hover:bg-slate-900/50 dark:bg-slate-100/30 dark:text-slate-900 dark:hover:bg-slate-100/50"
+					class="rounded-lg bg-slate-900 px-8 py-3 font-semibold text-slate-100 shadow-md transition-all duration-200 hover:bg-slate-900 dark:bg-slate-100/30 dark:text-slate-900 dark:hover:bg-slate-100/50
+					"
 					onclick={calculator.reset}
 				>
 					Reset
@@ -139,38 +143,46 @@
 	</div>
 
 	<Modal bind:open={showFutureOutlook}>
-		<Switch
-			bind:selected={calculator.futureTime}
-			onChange={(value) => {
-				calculator.futureTime = value as number;
-			}}
-			options={[
-				{ label: '5 years', value: 5 },
-				{ label: '10 years', value: 10 },
-				{ label: '20 years', value: 20 },
-				{ label: '40 years', value: 40 }
-			]}
-		/>
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
 			<div class="col-span-1 md:col-span-2">
+				<Switch
+					className="mb-4"
+					bind:selected={calculator.futureTime}
+					onChange={(value) => (calculator.futureTime = value as number)}
+					options={[
+						{ label: '5 years', value: 5 },
+						{ label: '10 years', value: 10 },
+						{ label: '20 years', value: 20 },
+						{ label: '40 years', value: 40 }
+					]}
+				/>
 				<FutureOutlook {config} />
 			</div>
-			<SeparatedList
-				items={[
-					{ label: 'Monthly savings', value: formatMoney(metadata.monthlySavings) },
-					{ label: 'Monthly investments', value: formatMoney(metadata.monthlyInvestments) },
-					{
-						label: 'Amount you put into your savings account',
-						value: formatMoney(metadata.savingsMoney)
-					},
-					{
-						label: 'Amount you put into your investments account',
-						value: formatMoney(metadata.investmentsMoney)
-					},
-					{ label: 'Free money from savings', value: formatMoney(metadata.savingsEarnings) },
-					{ label: 'Free money from investments', value: formatMoney(metadata.investmentsEarnings) }
-				]}
-			/>
+			<div
+				class="flex flex-col justify-around rounded-md bg-gray-100 p-2 dark:bg-gray-700 [&:not(:last-child)]:mb-4"
+			>
+				<div>
+					<h3 class="text-gray-800 dark:text-gray-50">High Yield Savings</h3>
+					<SeparatedList
+						items={[
+							{ label: 'Monthly amount', value: formatMoney(metadata.monthlySavings) },
+							{ label: 'Your total money', value: formatMoney(metadata.savingsMoney) },
+							{ label: 'Free money', value: formatMoney(metadata.savingsEarnings) }
+						]}
+					/>
+				</div>
+
+				<div>
+					<h3 class="text-gray-800 dark:text-gray-50">Investments</h3>
+					<SeparatedList
+						items={[
+							{ label: 'Monthly amount', value: formatMoney(metadata.monthlyInvestments) },
+							{ label: 'Your total money', value: formatMoney(metadata.investmentsMoney) },
+							{ label: 'Free money', value: formatMoney(metadata.investmentsEarnings) }
+						]}
+					/>
+				</div>
+			</div>
 		</div>
 	</Modal>
 </div>

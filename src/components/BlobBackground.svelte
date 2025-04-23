@@ -1,4 +1,4 @@
-<div class="gradient-bg bg-slate-50 dark:bg-slate-700">
+<div class="gradient-bg bg-gray-50 dark:bg-gray-700">
 	<svg xmlns="http://www.w3.org/2000/svg">
 		<defs>
 			<filter id="goo">

@@ -22,6 +22,6 @@
 	};
 </script>
 
-<div class="w-auto">
+<div class="margin-auto relative min-h-64 w-auto">
 	<canvas use:handleChart={config}></canvas>
 </div>

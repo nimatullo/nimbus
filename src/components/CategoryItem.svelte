@@ -25,7 +25,7 @@
 </script>
 
 <div
-	class="grid grid-cols-1 items-center gap-4 py-4 text-slate-900 md:grid-cols-3 dark:text-slate-100"
+	class="grid grid-cols-1 items-center gap-4 py-4 text-gray-900 md:grid-cols-3 dark:text-gray-100"
 >
 	<div class="col-span-3">
 		<div class="mb-1 flex flex-col justify-between md:flex-row">

@@ -40,7 +40,7 @@
 		role="dialog"
 	>
 		<div
-			class="relative h-auto w-full max-w-[60vw] rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800"
+			class="relative h-auto w-full rounded-lg bg-white p-6 shadow-lg md:max-w-[60vw] dark:bg-gray-800"
 		>
 			<button
 				class="absolute right-2 top-2 text-gray-400 hover:text-gray-600"

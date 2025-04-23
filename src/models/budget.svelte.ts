@@ -1,5 +1,15 @@
-import { averageReturns, investmentsColor, PayFrequency, savingsColor } from '../config';
+import { averageReturns, PayFrequency } from '../config';
 import { formatPercentage } from '../format';
+
+const savingsSeriesStyle = {
+	backgroundColor: 'oklch(88.5% 0.062 18.334)',
+	borderColor: 'oklch(80.8% 0.114 19.571)'
+};
+
+const investmentSeriesStyle = {
+	backgroundColor: 'oklch(89.4% 0.057 293.283)',
+	borderColor: 'oklch(81.1% 0.111 293.571)'
+};
 
 export class BudgetCalculator {
 	income = $state(0);
@@ -46,41 +56,34 @@ export class BudgetCalculator {
 		this.guiltFreeSpendingPercentage = 35;
 	};
 
-	get futureOutlook() {
-		const calculateAnnualReturns = (
-			monthlyInvestment: number,
-			rate: number,
-			years: number
-		): number[] => {
-			const monthlyRate = rate / 12;
-			const res: number[] = [];
-			let total = 0;
-			for (let m = 1; m <= years * 12; m++) {
-				total = (total + monthlyInvestment) * (1 + monthlyRate);
-				if (m % 12 === 0) res.push(total);
-			}
-			return res;
-		};
+	calculateInvestment(monthlyContribution: number, years: number, annualInterestRate: number) {
+		const annualContribution = monthlyContribution * 12;
+		return (
+			annualContribution * ((Math.pow(1 + annualInterestRate, years) - 1) / annualInterestRate)
+		);
+	}
 
+	get futureOutlook() {
 		const { investment, savings } = averageReturns;
 		const { savings: perPaySavings, investments: perPayInvestments } = this.budget;
 
 		const paidPerMonth = this.annualPaymentFrequency / 12;
-		const monthlySavings = perPaySavings * paidPerMonth;
-		const monthlyInvestments = perPayInvestments * paidPerMonth;
+		const mSaving = perPaySavings * paidPerMonth;
+		const mInvestment = perPayInvestments * paidPerMonth;
+		const yearsRange = Array.from({ length: this.futureTime }, (_, i) => i + 1);
 
 		return {
-			labels: Array.from({ length: this.futureTime }, (_, i) => i + 1),
+			labels: yearsRange,
 			datasets: [
 				{
 					label: 'Savings',
-					data: calculateAnnualReturns(monthlySavings, savings, this.futureTime),
-					...savingsColor
+					data: yearsRange.map((_, i) => this.calculateInvestment(mSaving, i + 1, savings)),
+					...savingsSeriesStyle
 				},
 				{
 					label: 'Investments',
-					data: calculateAnnualReturns(monthlyInvestments, investment, this.futureTime),
-					...investmentsColor
+					data: yearsRange.map((_, i) => this.calculateInvestment(mInvestment, i + 1, investment)),
+					...investmentSeriesStyle
 				}
 			]
 		};
