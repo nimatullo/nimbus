@@ -1,3 +1,11 @@
+<script lang="ts">
+	interface Props {
+		reduceMotion: boolean;
+	}
+
+	let { reduceMotion: moveBlobs = $bindable() }: Props = $props();
+</script>
+
 <div class="gradient-bg bg-gray-50 dark:bg-gray-700">
 	<svg xmlns="http://www.w3.org/2000/svg">
 		<defs>
@@ -14,11 +22,11 @@
 		</defs>
 	</svg>
 	<div class="gradients-container">
-		<div class="g1"></div>
-		<div class="g2"></div>
-		<div class="g3"></div>
-		<div class="g4"></div>
-		<div class="g5"></div>
+		<div class="g1" class:paused={moveBlobs}></div>
+		<div class="g2" class:paused={moveBlobs}></div>
+		<div class="g3" class:paused={moveBlobs}></div>
+		<div class="g4" class:paused={moveBlobs}></div>
+		<div class="g5" class:paused={moveBlobs}></div>
 	</div>
 </div>
 
@@ -65,109 +73,76 @@
 		height: 100%;
 	}
 
-	.g1 {
+	.g1,
+	.g2,
+	.g3,
+	.g4,
+	.g5 {
 		position: absolute;
-		background: radial-gradient(
-				circle at center,
-				rgba(var(--color1), 0.8) 0,
-				rgba(var(--color1), 0) 50%
-			)
-			no-repeat;
-		mix-blend-mode: var(--blending);
-
 		width: var(--circle-size);
 		height: var(--circle-size);
 		top: calc(50% - var(--circle-size) / 2);
 		left: calc(50% - var(--circle-size) / 2);
+		mix-blend-mode: var(--blending);
+		opacity: 1;
+	}
 
+	.g1 {
+		background: radial-gradient(
+			circle at center,
+			rgba(var(--color1), 0.8) 0,
+			rgba(var(--color1), 0) 50%
+		);
 		transform-origin: center center;
 		animation: moveInCircle 30s ease infinite;
-
-		opacity: 1;
 	}
 
 	.g2 {
-		position: absolute;
 		background: radial-gradient(
-				circle at center,
-				rgba(var(--color2), 0.8) 0,
-				rgba(var(--color2), 0) 50%
-			)
-			no-repeat;
-		mix-blend-mode: var(--blending);
-
-		width: var(--circle-size);
-		height: var(--circle-size);
-		top: calc(50% - var(--circle-size) / 2);
-		left: calc(50% - var(--circle-size) / 2);
-
+			circle at center,
+			rgba(var(--color2), 0.8) 0,
+			rgba(var(--color2), 0) 50%
+		);
 		transform-origin: calc(50% - 400px);
 		animation: moveInCircle 20s reverse infinite;
-
-		opacity: 1;
 	}
 
 	.g3 {
-		position: absolute;
 		background: radial-gradient(
-				circle at center,
-				rgba(var(--color3), 0.8) 0,
-				rgba(var(--color3), 0) 50%
-			)
-			no-repeat;
-		mix-blend-mode: var(--blending);
-
-		width: var(--circle-size);
-		height: var(--circle-size);
-		top: calc(50% - var(--circle-size) / 2);
-		left: calc(50% - var(--circle-size) / 2);
-
+			circle at center,
+			rgba(var(--color3), 0.8) 0,
+			rgba(var(--color3), 0) 50%
+		);
 		transform-origin: calc(50% + 400px);
 		animation: moveInCircle 40s linear infinite;
-
-		opacity: 1;
 	}
 
 	.g4 {
-		position: absolute;
 		background: radial-gradient(
-				circle at center,
-				rgba(var(--color4), 0.8) 0,
-				rgba(var(--color4), 0) 50%
-			)
-			no-repeat;
-		mix-blend-mode: var(--blending);
-
-		width: var(--circle-size);
-		height: var(--circle-size);
-		top: calc(50% - var(--circle-size) / 2);
-		left: calc(50% - var(--circle-size) / 2);
-
+			circle at center,
+			rgba(var(--color4), 0.8) 0,
+			rgba(var(--color4), 0) 50%
+		);
 		transform-origin: calc(50% - 200px);
 		animation: moveInCirlce 40s ease infinite;
-
 		opacity: 0.7;
 	}
 
 	.g5 {
-		position: absolute;
 		background: radial-gradient(
-				circle at center,
-				rgba(var(--color5), 0.8) 0,
-				rgba(var(--color5), 0) 50%
-			)
-			no-repeat;
-		mix-blend-mode: var(--blending);
-
+			circle at center,
+			rgba(var(--color5), 0.8) 0,
+			rgba(var(--color5), 0) 50%
+		);
 		width: calc(var(--circle-size) * 2);
 		height: calc(var(--circle-size) * 2);
-		top: calc(50% - var(--circle-size) / 2);
-		left: calc(50% - var(--circle-size) / 2);
-
 		transform-origin: calc(50% - 800px) calc(50% + 200px);
 		animation: moveInCircle 20s ease infinite;
+	}
 
-		opacity: 1;
+	/* Pause animations when paused class is applied */
+	.paused {
+		animation-play-state: paused !important;
 	}
 
 	@keyframes moveInCircle {
